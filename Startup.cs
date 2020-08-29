@@ -97,15 +97,29 @@ namespace EchoApp
 #region Echo
         private async Task Echo(HttpContext context, WebSocket webSocket)
         {
-            var buffer = new byte[1024 * 4];
-            WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-            while (!result.CloseStatus.HasValue)
-            {
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
+            //var buffer = new byte[1024 * 4];
+            //WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            //while (!result.CloseStatus.HasValue)
+            //{
+            //    await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
 
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            //    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            //}
+            //await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+
+            
+            while(true)
+            {
+                var message = DateTime.Now.ToString("hh:mm:ss.ms");
+                var bytes = Encoding.ASCII.GetBytes(message);
+                var arraySegment = new ArraySegment<byte>(bytes);
+                await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+                Thread.Sleep(5000); //sleeping so that we can see several messages are sent
             }
-            await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+
+            await webSocket.SendAsync(new ArraySegment<byte>(null), WebSocketMessageType.Binary, false, CancellationToken.None);
+
+
         }
 #endregion
     }
